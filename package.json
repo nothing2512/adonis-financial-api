@@ -23,6 +23,7 @@
         "@adonisjs/session": "^6.0.0",
         "@adonisjs/shield": "^7.0.0",
         "@adonisjs/view": "^6.0.0",
+        "exceljs": "^4.3.0",
         "luxon": "^2.1.1",
         "mysql": "^2.18.1",
         "phc-argon2": "^1.1.2",

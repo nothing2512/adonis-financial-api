@@ -67,6 +67,10 @@ crud('category', null, () => {
     Route.get('/:id/budgets', 'BudgetsController.indexByCategory')
 })
 
+Route.group(() => {
+    Route.get('/categories', 'ReportsController.categories')
+}).prefix('report')
+
 Route.get('/', async ({response}) => {
     // @ts-ignore
     return response.status(200).json({
