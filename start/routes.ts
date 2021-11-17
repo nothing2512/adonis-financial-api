@@ -51,9 +51,7 @@ Route.get('/attachments/:directory/:file', async ({params, response}) => {
 
 crud('saving')
 crud('budget')
-crud('transaction', null, () => {
-    Route.get('/all', 'TransactionsController.all')
-})
+crud('transaction')
 crud('debt', null, () => {
     Route.post('/:id/done', 'DebtsController.done')
     Route.post('/:id/undo', 'DebtsController.undo')
@@ -66,7 +64,8 @@ crud('category', null, () => {
 Route.group(() => {
     Route.get('/budgets', 'ReportsController.budgets')
     Route.get('/debts', 'ReportsController.debts')
-}).prefix('report')
+    Route.get('/transactions', 'ReportsController.transactions')
+}).prefix('report').middleware('qsAuth')
 
 Route.get('/', async ({response}) => {
     // @ts-ignore

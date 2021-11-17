@@ -11,23 +11,14 @@ const OUT = 2
 export default class TransactionsController {
     validatePayload: (payload) => Promise<string>;
 
-    async all({auth, response}: HttpContextContract) {
-        const user = auth.user!
-        const transactions = await Transaction.query()
-            .where('user_id', user.id)
-            .preload('saving')
-            .preload('category')
-        return response.success(transactions)
-    }
-
     async index({auth, request, response}: HttpContextContract) {
         const user = auth.user!
-        const transactions = await Transaction.query()
+        const transactions = Transaction.query()
             .where('user_id', user.id)
             .preload('saving')
             .preload('category')
-            .paginate(request.input('page', 1))
-        return response.pager(transactions)
+
+        return response.pager(await transactions.paginate(request.input('page', 1)))
     }
 
     async show({auth, params, response}: HttpContextContract) {

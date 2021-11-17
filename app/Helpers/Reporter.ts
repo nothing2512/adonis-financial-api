@@ -12,12 +12,19 @@ export default class Reporter {
 
         if (model.length > 0) {
             const json = model[0].toJSON()
-            sheet.addRow(Object.keys(json))
+            sheet.addRow([
+                '#',
+                ...Object.keys(json)
+            ])
         }
 
+        let i = 1;
         for (let x of model) {
             const json = x.toJSON()
-            sheet.addRow(Object.keys(json).map(key => json[key]))
+            sheet.addRow([
+                ++i,
+                ...Object.keys(json).map(key => json[key])
+            ])
         }
 
         if (!fs.existsSync(Application.tmpPath(`reports`)))
