@@ -3,6 +3,7 @@ import Saving from "App/Models/Saving";
 import Database from "@ioc:Adonis/Lucid/Database";
 import BudgetView from "App/Models/Views/BudgetView";
 import Debt from "App/Models/Debt";
+import Uploader from "App/Helpers/Uploader";
 
 export default class UsersController {
 
@@ -37,5 +38,18 @@ export default class UsersController {
             created_at: user.createdAt,
             updated_at: user.updatedAt,
         })
+    }
+
+    async update({auth, request, response}: HttpContextContract) {
+        const payload = request.all()
+        const user = auth.user!
+
+        const photo = request.file('photo')
+        if (photo !== null) payload.photo = await Uploader.photo(photo!)
+
+        user.merge(payload)
+        await user.save()
+
+        return response.success(user)
     }
 }
