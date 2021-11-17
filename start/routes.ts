@@ -67,6 +67,10 @@ Route.group(() => {
     Route.get('/transactions', 'ReportsController.transactions')
 }).prefix('report').middleware('qsAuth')
 
+Route.group(() => {
+    Route.get('/counter', 'StatisticsController.counter')
+}).prefix('statistic').middleware('auth')
+
 Route.get('/', async ({response}) => {
     // @ts-ignore
     return response.status(200).json({
