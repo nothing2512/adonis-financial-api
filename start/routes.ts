@@ -55,7 +55,6 @@ crud('transaction', null, () => {
     Route.get('/all', 'TransactionsController.all')
 })
 crud('debt', null, () => {
-    Route.get('/all', 'DebtsController.all')
     Route.post('/:id/done', 'DebtsController.done')
     Route.post('/:id/undo', 'DebtsController.undo')
 })
@@ -67,7 +66,8 @@ crud('category', null, () => {
 })
 
 Route.group(() => {
-    Route.get('/categories', 'ReportsController.categories')
+    Route.get('/budgets', 'ReportsController.budgets')
+    Route.get('/debts', 'ReportsController.debts')
 }).prefix('report')
 
 Route.get('/', async ({response}) => {

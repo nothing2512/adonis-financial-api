@@ -10,11 +10,11 @@ export default class DebtViews extends BaseSchema {
             SELECT
                 debt.id,
                 debt.user_id,
-                IF(debt.type = 1, 'Hutang', 'Piutang') as type,
+                debt.type,
                 debt.description,
                 debt.price,
                 debt.datetime,
-                IF(debt.status = 1, 'Selesai', 'Belum Selesai') as status,
+                debt.status,
                 debt.debt_user_id,
                 user.name,
                 user.phone,

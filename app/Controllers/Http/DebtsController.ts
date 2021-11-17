@@ -1,24 +1,32 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Debt from "App/Models/Debt";
 import DebtUser from "App/Models/DebtUser";
+import DebtView from "App/Models/Views/DebtView";
 
 export default class DebtsController {
 
-    async all({auth, response}: HttpContextContract) {
-        const user = auth.user!
-        const debts = await Debt.query()
-            .where('user_id', user.id)
-            .preload('debtUser')
-        return response.success(debts)
-    }
-
     async index({auth, request, response}: HttpContextContract) {
         const user = auth.user!
-        const debts = await Debt.query()
+        const debts = DebtView.query()
             .where('user_id', user.id)
-            .preload('debtUser')
-            .paginate(request.input('page', 1))
-        return response.pager(debts)
+            .orderBy('status')
+            .orderBy('id')
+
+        const status = request.input('status')
+        if (status !== undefined) debts.where('status', status)
+
+        const debtUserId = request.input('debtUserId')
+        if (debtUserId !== undefined) debts.where('debt_user_id', debtUserId)
+
+        const month = request.input('month')
+        const year = request.input('year')
+        if (month !== undefined) debts.whereRaw(`MONTH(datetime) = ${month}`)
+            .whereRaw(`YEAR(datetime) = ${year}`)
+
+        const type = request.input('type')
+        if (type !== undefined) debts.where('type', type)
+
+        return response.pager(await debts.paginate(request.input('page', 1)))
     }
 
     async show({auth, params, response}: HttpContextContract) {
