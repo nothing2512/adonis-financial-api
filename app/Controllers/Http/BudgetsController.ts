@@ -7,28 +7,20 @@ export default class BudgetsController {
 
     async index({auth, request, response}: HttpContextContract) {
         const user = auth.user!
-        const budgets = await BudgetView.query()
-            .where('user_id', user.id)
-            .paginate(request.input('page', 1))
-        return response.pager(budgets)
-    }
+        const budgets = BudgetView.query().where('user_id', user.id)
 
-    async indexByCategory({auth, params, request, response}: HttpContextContract) {
-        const user = auth.user!
+        const categoryId = request.input('categoryId')
+        if (categoryId !== undefined) {
+            const category = await Category.query()
+                .where('user_id', user.id)
+                .where('id', categoryId)
+                .first()
 
-        const category = await Category.query()
-            .where('user_id', user.id)
-            .where('id', params.id)
-            .first()
+            if (category === null) return response.error('Kategori tidak ditemukan')
+            budgets.where('category_id', categoryId)
+        }
 
-        if (category === null) return response.error('Kategori tidak ditemukan')
-
-        const budgets = await BudgetView.query()
-            .where('user_id', user.id)
-            .where('category_id', params.id)
-            .paginate(request.input('page', 1))
-
-        return response.pager(budgets)
+        return response.pager(await budgets.paginate(request.input('page', 1)))
     }
 
     async show({auth, params, response}: HttpContextContract) {

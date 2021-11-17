@@ -64,7 +64,6 @@ crud('debt/user', 'DebtUsers', () => {
 })
 crud('category', null, () => {
     Route.get('/all', 'CategoriesController.all')
-    Route.get('/:id/budgets', 'BudgetsController.indexByCategory')
 })
 
 Route.group(() => {
