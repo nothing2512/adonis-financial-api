@@ -1,9 +1,10 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Reporter from "App/Helpers/Reporter";
-import Category from "App/Models/Category";
 import BudgetView from "App/Models/Views/BudgetView";
 import Database from "@ioc:Adonis/Lucid/Database";
 import DebtView from "App/Models/Views/DebtView";
+import TransactionView from "App/Models/Views/TransactionView";
+import {string} from "@ioc:Adonis/Core/Helpers";
 
 export default class ReportsController {
 
@@ -12,7 +13,7 @@ export default class ReportsController {
         const budgets = BudgetView.query().where('user_id', user.id)
 
         const categoryId = request.input('categoryId')
-        if (categoryId !== null) budgets.where('category_id', categoryId)
+        if (categoryId !== undefined) budgets.where('category_id', categoryId)
 
         const filepath = await Reporter.make(await budgets.select([
             'name',
@@ -62,9 +63,32 @@ export default class ReportsController {
         return response.attachment(filepath, 'debts.xlsx')
     }
 
-    async categories({response}: HttpContextContract) {
-        const categories = await Category.all()
-        const filepath = await Reporter.make(categories)
-        return response.attachment(filepath, "nama.xlsx")
+    async transactions({auth, request, response}: HttpContextContract) {
+        const user = auth.user!
+        const transactions = TransactionView.query()
+            .where('user_id', user.id)
+            .orderBy('datetime', 'desc')
+
+        const month = request.input('month')
+        const year = request.input('year')
+        if (month !== undefined) transactions.whereRaw(`MONTH(datetime) = ${month}`)
+            .whereRaw(`YEAR(datetime) = ${year}`)
+
+        const payload = request.only(['categoryId', 'savingId', 'type', 'status'])
+
+        for (let key of Object.keys(payload))
+            transactions.where(string.snakeCase(key), payload[key])
+
+        const filepath = await Reporter.make(await transactions.select([
+            'datetime',
+            Database.raw('IFNULL(category, "-") as category'),
+            Database.raw('IFNULL(saving, "-") as saving'),
+            Database.raw('IF(type = 1, "Pemasukan", "Pengeluaran") as type'),
+            Database.raw('IF(status = 0, "Belum Selesai", "Selesai") as status'),
+            'title',
+            'description',
+            'price'
+        ]))
+        return response.attachment(filepath, 'transactions.xlsx')
     }
 }

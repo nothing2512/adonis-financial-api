@@ -23,6 +23,11 @@ export default class TransactionsController {
         for (let key of Object.keys(payload))
             transactions.where(string.snakeCase(key), payload[key])
 
+        const month = request.input('month')
+        const year = request.input('year')
+        if (month !== undefined) transactions.whereRaw(`MONTH(datetime) = ${month}`)
+            .whereRaw(`YEAR(datetime) = ${year}`)
+
         return response.pager(await transactions.paginate(request.input('page', 1)))
     }
 

@@ -11,6 +11,7 @@ export default class Transactions extends BaseSchema {
             table.bigInteger('category_id').nullable().defaultTo(0)
             table.bigInteger('saving_id').nullable().defaultTo(0)
             table.integer('type').notNullable()
+            table.integer('status').notNullable().defaultTo(0)
             table.string('title').notNullable()
             table.text('description')
             table.dateTime('datetime').notNullable()

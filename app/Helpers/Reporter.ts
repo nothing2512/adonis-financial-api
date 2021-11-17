@@ -18,7 +18,7 @@ export default class Reporter {
             ])
         }
 
-        let i = 1;
+        let i = 0;
         for (let x of model) {
             const json = x.toJSON()
             sheet.addRow([
