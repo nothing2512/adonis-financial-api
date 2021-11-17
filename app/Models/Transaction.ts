@@ -20,6 +20,9 @@ export default class Transaction extends BaseModel {
     public type?: number
 
     @column()
+    public status: number
+
+    @column()
     public title: string
 
     @column()

@@ -4,6 +4,8 @@ import Category from "App/Models/Category";
 import Saving from "App/Models/Saving";
 import Uploader from "App/Helpers/Uploader";
 import Database from "@ioc:Adonis/Lucid/Database";
+import TransactionView from "App/Models/Views/TransactionView";
+import {string} from '@ioc:Adonis/Core/Helpers'
 
 const IN = 1
 const OUT = 2
@@ -13,10 +15,13 @@ export default class TransactionsController {
 
     async index({auth, request, response}: HttpContextContract) {
         const user = auth.user!
-        const transactions = Transaction.query()
+        const transactions = TransactionView.query()
             .where('user_id', user.id)
-            .preload('saving')
-            .preload('category')
+
+        const payload = request.only(['categoryId', 'savingId', 'type', 'status'])
+
+        for (let key of Object.keys(payload))
+            transactions.where(string.snakeCase(key), payload[key])
 
         return response.pager(await transactions.paginate(request.input('page', 1)))
     }
