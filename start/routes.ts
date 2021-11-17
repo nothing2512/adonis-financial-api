@@ -69,6 +69,7 @@ Route.group(() => {
 
 Route.group(() => {
     Route.get('/counter', 'StatisticsController.counter')
+    Route.get('/transactions', 'StatisticsController.transactions')
 }).prefix('statistic').middleware('auth')
 
 Route.get('/', async ({response}) => {

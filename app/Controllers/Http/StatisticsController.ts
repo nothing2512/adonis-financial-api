@@ -10,6 +10,7 @@ const OUT = 2
 
 export default class StatisticsController {
     getCounter: (model: ModelQueryBuilderContract<any>, user: User, date: Date, oldDate: Date) => Promise<{ in: { price: any; increase: number | string }; out: { price: any; increase: number | string } }>;
+    getChart: (user: User, type: number) => any
 
     async counter({auth, response}: HttpContextContract) {
 
@@ -25,6 +26,17 @@ export default class StatisticsController {
         }
 
         return response.success(result)
+    }
+
+    async transactions({auth, response}: HttpContextContract) {
+        const user = auth.user!
+
+        const transactions = {
+            income: await this.getChart(user, IN),
+            expense: await this.getChart(user, OUT)
+        }
+
+        return response.success(transactions)
     }
 }
 
@@ -77,4 +89,18 @@ StatisticsController.prototype.getCounter = async  (model: ModelQueryBuilderCont
                     : ((newData.out - oldData.out) / oldData.out * 100).toFixed(2))
         }
     }
+}
+StatisticsController.prototype.getChart = async (user: User, type: number) => {
+    return Database.from('transactions')
+        .where('user_id', user.id)
+        .where('type', type)
+        .groupByRaw('YEAR(datetime)')
+        .groupByRaw('MONTH(datetime)')
+        .orderByRaw('YEAR(datetime) DESC')
+        .orderByRaw('MONTH(datetime) DESC')
+        .select([
+            Database.raw("YEAR(datetime) as year"),
+            Database.raw("MONTH(datetime) as month"),
+            Database.raw("SUM(price) as price")
+        ])
 }
