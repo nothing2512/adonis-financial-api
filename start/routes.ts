@@ -72,6 +72,11 @@ Route.group(() => {
     Route.get('/transactions', 'StatisticsController.transactions')
 }).prefix('statistic').middleware('auth')
 
+Route.group(() => {
+    Route.get('/profile', 'UsersController.detail')
+    Route.post('/edit', 'UsersController.update')
+}).prefix('user').middleware('auth')
+
 Route.get('/', async ({response}) => {
     // @ts-ignore
     return response.status(200).json({

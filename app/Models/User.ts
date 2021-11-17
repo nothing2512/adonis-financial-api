@@ -33,4 +33,9 @@ export default class User extends BaseModel {
             user.password = await Hash.make(user.password)
         }
     }
+
+    public balance: number
+    public budget: number
+    public debtIn: number
+    public debtOut: number
 }
