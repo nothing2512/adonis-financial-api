@@ -58,9 +58,7 @@ crud('debt', null, () => {
     Route.post('/:id/done', 'DebtsController.done')
     Route.post('/:id/undo', 'DebtsController.undo')
 })
-crud('debt/user', 'DebtUsers', () => {
-    Route.get('/all', 'DebtUsersController.all')
-})
+crud('debt/user', 'DebtUsers')
 crud('category', null, () => {
     Route.get('/all', 'CategoriesController.all')
 })

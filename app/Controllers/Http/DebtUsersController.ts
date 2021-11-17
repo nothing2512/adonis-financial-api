@@ -4,21 +4,16 @@ import Uploader from "App/Helpers/Uploader";
 
 export default class DebtUsersController {
 
-    async all({auth, response}: HttpContextContract) {
-        const user = auth.user!
-        const debtUser = await DebtUser.query()
-            .where('user_id', user.id)
-            .orderBy('name')
-        return response.success(debtUser)
-    }
-
     async index({auth, request, response}: HttpContextContract) {
         const user = auth.user!
-        const debtUser = await DebtUser.query()
+        const debtUser = DebtUser.query()
             .where('user_id', user.id)
             .orderBy('name')
-            .paginate(request.input('page', 1))
-        return response.pager(debtUser)
+
+        const keyword = request.input('search')
+        if (keyword !== undefined) debtUser.where('name', 'LIKE', `%${keyword}%`)
+
+        return response.pager(await debtUser.paginate(request.input('page', 1)))
     }
 
     async show({auth, params, response}: HttpContextContract) {
