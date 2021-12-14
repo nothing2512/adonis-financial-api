@@ -3,12 +3,11 @@ import Saving from "App/Models/Saving";
 
 export default class SavingsController {
 
-    async index({auth, request, response}: HttpContextContract) {
+    async index({auth, response}: HttpContextContract) {
         const user = auth.user!
         const savings = await Saving.query()
             .where('user_id', user.id)
-            .paginate(request.input('page', 1))
-        return response.pager(savings)
+        return response.success(savings)
     }
 
     async show({auth, params, response}: HttpContextContract) {
@@ -51,7 +50,13 @@ export default class SavingsController {
         if (saving === null) return response.error('Penyimpanan tidak ditemukan')
 
         const name = request.input('name')
+        const balance = request.input("balance")
         if (name == null) return response.error('Nama penyimpanan tidak boleh kosong')
+
+        if (balance != null) {
+            if (isNaN(balance)) return response.error('Saldo harus berupa angka')
+            saving.merge({balance: balance})
+        }
 
         saving.merge({name: name})
         await saving.save()

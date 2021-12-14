@@ -11,13 +11,12 @@ export default class CategoriesController {
         return response.success(categories)
     }
 
-    async index({auth, request, response}: HttpContextContract) {
+    async index({auth, response}: HttpContextContract) {
         const user = auth.user!
         const categories = await Category.query()
             .where('user_id', user.id)
             .orderBy('name')
-            .paginate(request.input('page', 1))
-        return response.pager(categories)
+        return response.success(categories)
     }
 
     async show({auth, params, response}: HttpContextContract) {

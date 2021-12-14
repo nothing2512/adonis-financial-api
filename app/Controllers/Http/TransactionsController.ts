@@ -28,7 +28,7 @@ export default class TransactionsController {
         if (month !== undefined) transactions.whereRaw(`MONTH(datetime) = ${month}`)
             .whereRaw(`YEAR(datetime) = ${year}`)
 
-        return response.pager(await transactions.paginate(request.input('page', 1)))
+        return response.success(await transactions.orderBy('datetime'))
     }
 
     async show({auth, params, response}: HttpContextContract) {
@@ -71,16 +71,17 @@ export default class TransactionsController {
         const transaction = await Transaction.query()
             .where('user_id', user.id)
             .where('id', params.id)
-            .preload('saving')
             .first()
 
         if (transaction === null) return response.error('Transaksi tidak ditemukan')
 
-        if (transaction.savingId != 0) {
-            const saving = transaction.saving
-            if (transaction.type == IN) saving.balance -= transaction.price
-            if (transaction.type == OUT) saving.balance += transaction.price
-            await saving.save()
+        if (transaction.savingId != 0 && transaction.savingId != null) {
+            const saving = await Saving.query()
+                .where('id', transaction.savingId)
+                .first()
+            if (transaction.type == IN) saving!.balance -= transaction.price
+            if (transaction.type == OUT) saving!.balance += transaction.price
+            await saving!.save()
         }
 
         const isValidated = await this.validatePayload(payload)
@@ -105,6 +106,15 @@ export default class TransactionsController {
 
         if (transaction === null) return response.error('Transaksi tidak ditemukan')
 
+        if (transaction.savingId != 0 && transaction.savingId != null) {
+            const saving = await Saving.query()
+                .where('id', transaction.savingId)
+                .first()
+            if (transaction.type == IN) saving!.balance -= transaction.price
+            if (transaction.type == OUT) saving!.balance += transaction.price
+            await saving!.save()
+        }
+
         await transaction.delete()
 
         return response.success(null, 'Berhasil hapus data')
@@ -128,8 +138,6 @@ TransactionsController.prototype.validatePayload = async (payload) => {
             .first()
         if (saving === null) return 'Penyimpanan tidak ditemukan'
 
-        console.log(typeof saving.balance)
-        console.log(typeof payload.price)
         if (payload.type == IN) saving.balance += parseInt(payload.price)
         if (payload.type == OUT) {
             if (payload.price > saving.balance) return 'Saldo pada penyimpanan tidak mencukupi'
